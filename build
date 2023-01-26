@@ -1,0 +1,32 @@
+#!/bin/bash
+
+export PACKAGE=tiro
+
+export STARTDIR=$PWD
+export TIRO_BUILDTIME=$(date +%Y.%m.%d-%H:%M:%S)
+export TIRO_GOVERSION=$(go version | cut -d " " -f 3)
+export TIRO_BUILDHOST=$(hostname)
+export BASEDIR="$(dirname "${PWD}")"
+
+platforms=("linux/amd64")
+
+for platform in "${platforms[@]}"
+do
+    IFS='/' read -ra platform_split <<< "$platform"
+    GOOS=${platform_split[0]}
+    GOARCH=${platform_split[1]}
+    basename=$PACKAGE'-'$GOOS'-'$GOARCH
+    echo $basename
+    BINARY=$BASEDIR/$PACKAGE/cli/$basename
+    cd $BASEDIR/$PACKAGE/cli
+    env TIRO_BUILDTIME=$TIRO_BUILDTIME TIRO_GOVERSION=$TIRO_GOVERSION GOOS=$GOOS GOARCH=$GOARCH TIRO_BUILDHOST=$TIRO_BUILDHOST go build -o $BINARY -ldflags "-X main.buildTime=$TIRO_BUILDTIME -X main.buildHost=$TIRO_BUILDHOST -X main.goVersion=$TIRO_GOVERSION" .
+    echo $BINARY
+done
+
+export BINDIR=$(qtechng registry get bindir)
+
+mv $BINARY $BINDIR/$PACKAGE
+chmod a+x $BINDIR/$PACKAGE
+$PACKAGE about
+cd $STARTDIR
+go test ./...
