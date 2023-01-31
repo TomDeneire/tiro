@@ -1,5 +1,6 @@
 package database
 
 type Note struct {
-	Contents []byte
+	Key any
+	Contents string
 }

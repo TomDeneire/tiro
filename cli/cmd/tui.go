@@ -25,7 +25,7 @@ func init() {
 func tui(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(figlet.Flogo)
-	qtui.Navigate()
+	qtui.Views()
 
 	return nil
 }
