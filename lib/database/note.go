@@ -1,6 +1,6 @@
 package database
 
 type Note struct {
-	Key any
+	Key      int
 	Contents string
 }

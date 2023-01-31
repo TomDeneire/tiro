@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"log"
+	"strconv"
+
 	"github.com/spf13/cobra"
 	database "tomdeneire.github.io/tiro/lib/database"
 )
@@ -22,13 +25,20 @@ func init() {
 func take(cmd *cobra.Command, args []string) error {
 
 	var noteid any
+	var err error
+
 	if len(args) == 2 {
-		noteid = args[1]
+		noteid, err = strconv.Atoi(args[1])
+		if err != nil {
+			log.Fatalf("take error, noteid invalid: %v", err)
+		}
 	}
 
-	err := database.Set(args[0], noteid)
+	content := args[0]
+
+	err = database.Set(content, noteid)
 	if err != nil {
-		panic(err)
+		log.Fatalf("take error: %v", err)
 	}
 
 	return nil

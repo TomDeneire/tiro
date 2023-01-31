@@ -17,12 +17,14 @@ CREATE TABLE notes (
 	note TEXT
 );`
 
-const createAdmin = `
-CREATE TABLE admin (
+const createMeta = `
+CREATE TABLE meta (
 	key INTEGER PRIMARY KEY AUTOINCREMENT,
     noteid INTEGER,
 	time TEXT,
-	action TEXT
+	action TEXT,
+    cwd TEXT,
+    user TEXT
 );`
 
 var notesDir = filepath.Join(os.Getenv("HOME"), ".tiro")
@@ -49,8 +51,8 @@ func Create() error {
 		return fmt.Errorf("cannot create table notes: %v", err)
 	}
 
-	if _, err = db.Exec(createAdmin); err != nil {
-		return fmt.Errorf("cannot create table admin: %v", err)
+	if _, err = db.Exec(createMeta); err != nil {
+		return fmt.Errorf("cannot create table meta: %v", err)
 	}
 
 	return nil

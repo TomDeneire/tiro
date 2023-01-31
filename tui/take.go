@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"tomdeneire.github.io/tiro/lib/database"
 )
 
 func Take() {
@@ -25,7 +26,7 @@ type takeModel struct {
 
 func initialModel() takeModel {
 	ti := textarea.New()
-	ti.Placeholder = "Once upon a time..."
+	ti.Placeholder = "..."
 	ti.Focus()
 
 	return takeModel{
@@ -50,6 +51,10 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textarea.Blur()
 			}
 		case tea.KeyCtrlC:
+			err := database.Set(m.textarea.Value(), nil)
+			if err != nil {
+				log.Fatalf("tui take error: %v", err)
+			}
 			return m, tea.Quit
 		default:
 			if !m.textarea.Focused() {
@@ -71,7 +76,7 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m takeModel) View() string {
 	return fmt.Sprintf(
-		"Tell me a story.\n\n%s\n\n%s",
+		"Start taking your note!\n\n%s\n\n%s",
 		m.textarea.View(),
 		"(ctrl+c to quit)",
 	) + "\n\n"

@@ -4,15 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
 
 const newNote = "INSERT INTO notes (key, note) Values($1,$2)"
-const newAdmin = "INSERT INTO admin (key, noteid, time, action) Values($1,$2,$3,$4)"
+const newMeta = "INSERT INTO meta (key, noteid, time, action, cwd, user) Values($1,$2,$3,$4,$5,$6)"
 
-const overwriteNote = `UPDATE notes SET note = "?" WHERE key = ?;`
+const overwriteNote = `UPDATE notes SET note = ? WHERE key = ?;`
 
 // Sets a database note; either a new one (without second argument)
 // or overwrites an existing one (with note identifier as second argument)
@@ -28,14 +29,26 @@ func Set(contents string, identifier any) error {
 	}
 
 	// Construct note
-
 	var note Note
 	note.Contents = contents
+	if identifier != nil {
+		note.Key = identifier.(int)
+	}
+
+	// Construct meta data
+	var meta Meta
+	meta.Time = time.Now().Format("20220131-16:18:22")
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("cannot get current work directory: %v", err)
+	}
+	meta.Cwd = cwd
+	meta.User = os.Getenv("USER")
 
 	// Access database
 	db, err := sql.Open("sqlite", NotesFile)
 	if err != nil {
-		return fmt.Errorf("cannot open file: %v", err)
+		return fmt.Errorf("cannot open database: %v", err)
 	}
 	defer db.Close()
 
@@ -43,9 +56,9 @@ func Set(contents string, identifier any) error {
 
 	var setErr error
 	if identifier == nil {
-		setErr = New(&note, db)
+		setErr = New(&note, &meta, db)
 	} else {
-		setErr = Overwrite(&note, db, identifier)
+		setErr = Overwrite(&note, &meta, db)
 	}
 	if setErr != nil {
 		return fmt.Errorf("cannot set note: %v", setErr)
@@ -54,8 +67,7 @@ func Set(contents string, identifier any) error {
 	return nil
 }
 
-func New(note *Note, db *sql.DB) error {
-	mtime := time.Now().Unix() // must be int in sqlar specification!
+func New(note *Note, meta *Meta, db *sql.DB) error {
 
 	newStmt, err := db.Prepare(newNote)
 	if err != nil {
@@ -71,87 +83,45 @@ func New(note *Note, db *sql.DB) error {
 		return fmt.Errorf("cannot obtain new identifier: %v", err)
 	}
 
-	adminStmt, err := db.Prepare(newAdmin)
+	metaStmt, err := db.Prepare(newMeta)
 	if err != nil {
-		return fmt.Errorf("cannot prepare newadmin statement: %v", err)
+		return fmt.Errorf("cannot prepare newmeta statement: %v", err)
 	}
-	_, err = adminStmt.Exec(nil, noteid, mtime, "created")
+	_, err = metaStmt.Exec(nil, noteid, meta.Time, "created", meta.Cwd, meta.User)
 	if err != nil {
-		return fmt.Errorf("cannot execute newadmin statement: %v", err)
+		return fmt.Errorf("cannot execute newmeta statement: %v", err)
 	}
 
 	return nil
 }
 
-func Overwrite(note *Note, db *sql.DB, noteid any) error {
-	mtime := time.Now().Unix() // must be int in sqlar specification!
+func Overwrite(note *Note, meta *Meta, db *sql.DB) error {
 
 	overwriteStmt, err := db.Prepare(overwriteNote)
 	if err != nil {
 		return fmt.Errorf("cannot prepare overwritenote statement: %v", err)
 	}
 
-	result, err := overwriteStmt.Exec(noteid, note.Contents)
+	// needs to be string for SQL query!
+	key := strconv.Itoa(note.Key)
+	result, err := overwriteStmt.Exec(note.Contents, key)
 	if err != nil {
 		return fmt.Errorf("cannot execute overwritenote statement: %v", err)
 	}
 	affected, err := result.RowsAffected()
 	if err != nil || affected == 0 {
+		fmt.Println(affected)
 		return fmt.Errorf("cannot execute overwritenote statement: %v", err)
 	}
 
-	adminStmt, err := db.Prepare(newAdmin)
+	metaStmt, err := db.Prepare(newMeta)
 	if err != nil {
-		return fmt.Errorf("cannot prepare overwriteadmin statement: %v", err)
+		return fmt.Errorf("cannot prepare overwritemeta statement: %v", err)
 	}
-	_, err = adminStmt.Exec(nil, noteid, mtime, "modified")
+	_, err = metaStmt.Exec(nil, key, meta.Time, "modified", meta.Cwd, meta.User)
 	if err != nil {
-		return fmt.Errorf("cannot execute overwritadmin statement: %v", err)
+		return fmt.Errorf("cannot execute overwritemeta statement: %v", err)
 	}
 
 	return nil
 }
-
-// mtime := time.Now().Unix() // must be int in sqlar specification!
-// props, _ := basefs.Properties("nakedfile")
-// mode := int64(props.PERM)
-// sz := int64(len(data))
-// _, err = stmt1.Exec(name, mode, mtime, sz, data)
-// if err != nil {
-//     return fmt.Errorf("cannot exec stmt1: %v", err)
-// }
-// _, err = stmt3.Exec(nil, docman, name)
-// if err != nil {
-//     return fmt.Errorf("cannot exec stmt3: %v", err)
-// }
-// stmt1, err := db.Prepare("INSERT INTO sqlar (name, mode, mtime, sz, data) Values($1,$2,$3,$4,$5)")
-// if err != nil {
-//     return fmt.Errorf("cannot prepare insert1: %v", err)
-// }
-// defer stmt1.Close()
-//
-// stmt2, err := db.Prepare(insertAdmin)
-// if err != nil {
-//     return fmt.Errorf("cannot prepare insert2: %v", err)
-// }
-// defer stmt2.Close()
-//
-// stmt3, err := db.Prepare("INSERT INTO files (key, docman, name) Values($1,$2,$3)")
-// if err != nil {
-//     return fmt.Errorf("cannot prepare insert3: %v", err)
-// }
-// defer stmt3.Close()
-//
-// stmt4, err := db.Prepare(insertMeta)
-// if err != nil {
-//     return fmt.Errorf("cannot prepare insert4: %v", err)
-// }
-// defer stmt4.Close()
-//
-// // Insert into "admin", "files"
-//
-// content, err := json.Marshal(iiifMeta.Manifest)
-// manifest := string(content)
-// if err != nil {
-//     return fmt.Errorf("json error on stmt4: %v", err)
-// }

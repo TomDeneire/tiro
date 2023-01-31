@@ -7,8 +7,8 @@ import (
 var commandCmd = &cobra.Command{
 	Use:     "command",
 	Short:   "Command functions",
-	Long:    `Working with iiiftool commands`,
-	Example: "iiiftool command list",
+	Long:    `Working with tui commands`,
+	Example: "tui command list",
 }
 
 func init() {

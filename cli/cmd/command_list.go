@@ -11,8 +11,8 @@ import (
 var commandListCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List commands",
-	Long:    `Displays a list of all available iiiftool commands`,
-	Example: "iiiftool command list",
+	Long:    `Displays a list of all available tui commands`,
+	Example: "tui command list",
 	RunE:    commandList}
 
 func init() {
