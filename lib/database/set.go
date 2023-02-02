@@ -17,12 +17,12 @@ const overwriteNote = `UPDATE notes SET note = ? WHERE key = ?;`
 
 // Sets a database note; either a new one (without second argument)
 // or overwrites an existing one (with note identifier as second argument)
-func Set(contents string, identifier any) error {
+func Set(contents string, identifier any, notesFile string) error {
 
 	// Check if database exists
-	_, err := os.Stat(NotesFile)
+	_, err := os.Stat(notesFile)
 	if os.IsNotExist(err) {
-		createErr := Create()
+		createErr := Create(notesFile)
 		if createErr != nil {
 			return fmt.Errorf("cannot create database: %v", createErr)
 		}
@@ -46,7 +46,7 @@ func Set(contents string, identifier any) error {
 	meta.User = os.Getenv("USER")
 
 	// Access database
-	db, err := sql.Open("sqlite", NotesFile)
+	db, err := sql.Open("sqlite", notesFile)
 	if err != nil {
 		return fmt.Errorf("cannot open database: %v", err)
 	}

@@ -47,7 +47,7 @@ func (m model) View() string {
 
 func Search() {
 
-	items, err := database.GetSearchList()
+	items, err := database.GetSearchList(NotesFile)
 	if err != nil {
 		log.Fatalf("tui error: %v", err)
 	}

@@ -29,7 +29,7 @@ func read(cmd *cobra.Command, args []string) error {
 		noteid = args[0]
 	}
 
-	result, err := database.Get(noteid)
+	result, err := database.Get(noteid, NotesFile)
 	if err != nil {
 		log.Fatalf("read error: %v", err)
 	}

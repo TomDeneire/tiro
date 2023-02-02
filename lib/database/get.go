@@ -17,10 +17,10 @@ func (i SearchItem) FilterValue() string { return i.ItemDesc }
 
 // Gets a database note; either the most recent one (without argument)
 // or a specific one (with note identifier as argument)
-func Get(noteid any) (string, error) {
+func Get(noteid any, notesFile string) (string, error) {
 
 	// Access database
-	db, err := sql.Open("sqlite", NotesFile)
+	db, err := sql.Open("sqlite", notesFile)
 	if err != nil {
 		return "", fmt.Errorf("cannot open database: %v", err)
 	}
@@ -54,10 +54,10 @@ func ReadNoteRow(row *sql.Row, note *Note) error {
 	return nil
 }
 
-func GetSearchList() (searchList []list.Item, err error) {
+func GetSearchList(notesFile string) (searchList []list.Item, err error) {
 
 	// Access database
-	db, err := sql.Open("sqlite", NotesFile)
+	db, err := sql.Open("sqlite", notesFile)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open database: %v", err)
 	}

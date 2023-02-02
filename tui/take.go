@@ -20,9 +20,9 @@ func Take(noteid any) {
 type errMsg error
 
 type takeModel struct {
-	textarea textarea.Model
-	noteid   any
 	err      error
+	noteid   any
+	textarea textarea.Model
 }
 
 func initialModel(noteid any) takeModel {
@@ -31,7 +31,7 @@ func initialModel(noteid any) takeModel {
 	ti.Focus()
 
 	if noteid != nil {
-		contents, err := database.Get(noteid)
+		contents, err := database.Get(noteid, NotesFile)
 		if err != nil {
 			log.Fatalf("cannot open note: %v", err)
 		}
@@ -39,9 +39,9 @@ func initialModel(noteid any) takeModel {
 	}
 
 	return takeModel{
-		textarea: ti,
-		noteid:   noteid,
 		err:      nil,
+		noteid:   noteid,
+		textarea: ti,
 	}
 }
 
@@ -65,7 +65,7 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyCtrlC:
 			contents := m.textarea.Value()
 			if contents != "" {
-				err := database.Set(contents, m.noteid)
+				err := database.Set(contents, m.noteid, NotesFile)
 				if err != nil {
 					log.Fatalf("tui take error: %v", err)
 				}

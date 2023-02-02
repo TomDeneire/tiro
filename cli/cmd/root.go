@@ -1,10 +1,16 @@
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/spf13/cobra"
 
 	figlet "tomdeneire.github.io/tiro/lib/figlet"
 )
+
+// Name of the notes database file
+var NotesFile = filepath.Join(os.Getenv("HOME"), ".tiro", "tiro.sqlite")
 
 // BuildTime defined by compilation
 var BuildTime = ""

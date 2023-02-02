@@ -36,7 +36,7 @@ func take(cmd *cobra.Command, args []string) error {
 
 	content := args[0]
 
-	err = database.Set(content, noteid)
+	err = database.Set(content, noteid, NotesFile)
 	if err != nil {
 		log.Fatalf("take error: %v", err)
 	}

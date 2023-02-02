@@ -27,13 +27,11 @@ CREATE TABLE meta (
     user TEXT
 );`
 
-var notesDir = filepath.Join(os.Getenv("HOME"), ".tiro")
-var NotesFile = filepath.Join(notesDir, "tiro.sqlite")
-
-func Create() error {
+func Create(notesFile string) error {
 
 	// Create directory
 
+	notesDir := filepath.Dir(notesFile)
 	err := os.Mkdir(notesDir, 0750)
 	if err != nil && !os.IsExist(err) {
 		return fmt.Errorf("cannot create directory: %v", err)
@@ -41,7 +39,7 @@ func Create() error {
 
 	// Create tables
 
-	db, err := sql.Open("sqlite", NotesFile)
+	db, err := sql.Open("sqlite", notesFile)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %v", err)
 	}

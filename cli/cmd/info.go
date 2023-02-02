@@ -28,7 +28,7 @@ func info(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatalf("info error: invalid note id: %v", err)
 	}
-	result, err := database.Info(noteid)
+	result, err := database.Info(noteid, NotesFile)
 	if err != nil {
 		log.Fatalf("info error: %v", err)
 	}

@@ -7,10 +7,10 @@ import (
 )
 
 // Get all availabel info about a specific database note
-func Info(noteid int) ([]Meta, error) {
+func Info(noteid int, notesFile string) ([]Meta, error) {
 
 	// Access database
-	db, err := sql.Open("sqlite", NotesFile)
+	db, err := sql.Open("sqlite", notesFile)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open database: %v", err)
 	}
