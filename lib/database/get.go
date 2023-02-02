@@ -7,13 +7,13 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 )
 
-type searchItem struct {
+type SearchItem struct {
 	ItemTitle, ItemDesc string
 }
 
-func (i searchItem) Title() string       { return i.ItemTitle }
-func (i searchItem) Description() string { return i.ItemDesc }
-func (i searchItem) FilterValue() string { return i.ItemDesc }
+func (i SearchItem) Title() string       { return i.ItemTitle }
+func (i SearchItem) Description() string { return i.ItemDesc }
+func (i SearchItem) FilterValue() string { return i.ItemDesc }
 
 // Gets a database note; either the most recent one (without argument)
 // or a specific one (with note identifier as argument)
@@ -66,7 +66,7 @@ func GetSearchList() (searchList []list.Item, err error) {
 	var rows *sql.Rows
 	rows, err = db.Query("SELECT * FROM notes ORDER BY key DESC")
 	for rows.Next() {
-		var item searchItem
+		var item SearchItem
 		if err := rows.Scan(&item.ItemTitle, &item.ItemDesc); err != nil {
 			return nil, fmt.Errorf("cannot read value: %v", err)
 		}

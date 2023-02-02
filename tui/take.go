@@ -9,8 +9,8 @@ import (
 	"tomdeneire.github.io/tiro/lib/database"
 )
 
-func Take() {
-	p := tea.NewProgram(initialModel())
+func Take(noteid any) {
+	p := tea.NewProgram(initialModel(noteid))
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
@@ -21,16 +21,26 @@ type errMsg error
 
 type takeModel struct {
 	textarea textarea.Model
+	noteid   any
 	err      error
 }
 
-func initialModel() takeModel {
+func initialModel(noteid any) takeModel {
 	ti := textarea.New()
 	ti.Placeholder = "..."
 	ti.Focus()
 
+	if noteid != nil {
+		contents, err := database.Get(noteid)
+		if err != nil {
+			log.Fatalf("cannot open note: %v", err)
+		}
+		ti.SetValue(contents)
+	}
+
 	return takeModel{
 		textarea: ti,
+		noteid:   noteid,
 		err:      nil,
 	}
 }
@@ -44,6 +54,8 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.textarea.SetWidth(msg.Width - 10)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
@@ -51,9 +63,12 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textarea.Blur()
 			}
 		case tea.KeyCtrlC:
-			err := database.Set(m.textarea.Value(), nil)
-			if err != nil {
-				log.Fatalf("tui take error: %v", err)
+			contents := m.textarea.Value()
+			if contents != "" {
+				err := database.Set(contents, m.noteid)
+				if err != nil {
+					log.Fatalf("tui take error: %v", err)
+				}
 			}
 			return m, tea.Quit
 		default:

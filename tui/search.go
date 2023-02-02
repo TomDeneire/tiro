@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"tomdeneire.github.io/tiro/lib/database"
 )
-
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type model struct {
 	list list.Model
@@ -27,9 +25,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
+		if msg.String() == "e" {
+			item := m.list.SelectedItem()
+			searchItem := item.(database.SearchItem)
+			noteid, _ := strconv.Atoi(searchItem.ItemTitle)
+			Take(noteid)
+			return m, tea.Quit
+		}
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
+		m.list.SetSize(msg.Width-10, msg.Height-10)
 	}
 
 	var cmd tea.Cmd
@@ -38,7 +42,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return docStyle.Render(m.list.View())
+	return m.list.View()
 }
 
 func Search() {
@@ -51,7 +55,7 @@ func Search() {
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
 	m.list.Title = "My Notes"
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
