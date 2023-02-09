@@ -37,7 +37,7 @@ func Set(contents string, identifier any, notesFile string) error {
 
 	// Construct meta data
 	var meta Meta
-	meta.Time = time.Now().Format("20220131-16:18:22")
+	meta.Time = time.Now().Format("2006-01-02T15:04:05")
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("cannot get current work directory: %v", err)

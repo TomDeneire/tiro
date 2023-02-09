@@ -64,12 +64,19 @@ func GetSearchList(notesFile string) (searchList []list.Item, err error) {
 	defer db.Close()
 
 	var rows *sql.Rows
-	rows, err = db.Query("SELECT * FROM notes ORDER BY key DESC")
+	query := `select notes.key, notes.note, meta.action, meta.time from notes
+    join meta on meta.key = notes.key
+    order by notes.key desc`
+	rows, err = db.Query(query)
 	for rows.Next() {
 		var item SearchItem
-		if err := rows.Scan(&item.ItemTitle, &item.ItemDesc); err != nil {
+		var key string
+		var action string
+		var time string
+		if err := rows.Scan(&key, &item.ItemDesc, &action, &time); err != nil {
 			return nil, fmt.Errorf("cannot read value: %v", err)
 		}
+		item.ItemTitle = key + " (" +action + " " + time + ")"
 		searchList = append(searchList, item)
 	}
 	if err != nil {

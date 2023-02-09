@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// Get all availabel info about a specific database note
+// Get all available info about a specific database note
 func Info(noteid int, notesFile string) ([]Meta, error) {
 
 	// Access database

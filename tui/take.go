@@ -28,6 +28,7 @@ type takeModel struct {
 func initialModel(noteid any) takeModel {
 	ti := textarea.New()
 	ti.Placeholder = "..."
+	ti.CharLimit = 0
 	ti.Focus()
 
 	if noteid != nil {
@@ -56,6 +57,8 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.textarea.SetWidth(msg.Width - 10)
+		m.textarea.EndOfBufferCharacter = '-'
+		m.textarea.CursorEnd()
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
