@@ -32,10 +32,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if msg.String() == "n" {
 			if m.list.FilterState() != Filtering {
-				// c := exec.Command("tiro", "tui", "take")
-				// return m, tea.ExecProcess(c, nil)
-				Take(nil)
-				return m, tea.Quit
+				takeModel := initialTakeModel(nil)
+				return takeModel, nil
 			}
 		}
 		if msg.String() == "e" {
@@ -45,8 +43,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					log.Fatalf("Error getting noteid: %v", err)
 				}
-				Take(noteid)
-				return m, tea.Quit
+				takeModel := initialTakeModel(noteid)
+				return takeModel, nil
 			}
 		}
 
