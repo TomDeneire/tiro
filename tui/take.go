@@ -10,10 +10,13 @@ import (
 )
 
 func Take(noteid any) {
-	p := tea.NewProgram(initialModel(noteid))
+	m := initialTakeModel(noteid)
+	p := tea.NewProgram(m)
 
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
+	_, err := p.Run()
+
+	if err != nil {
+		log.Fatalf("TUI error: %v", err)
 	}
 }
 
@@ -25,10 +28,13 @@ type takeModel struct {
 	textarea textarea.Model
 }
 
-func initialModel(noteid any) takeModel {
+func initialTakeModel(noteid any) takeModel {
 	ti := textarea.New()
 	ti.Placeholder = "..."
 	ti.CharLimit = 0
+	ti.FocusedStyle.CursorLine = ti.BlurredStyle.CursorLine
+	ti.EndOfBufferCharacter = '-'
+	ti.CursorEnd()
 	ti.Focus()
 
 	if noteid != nil {
@@ -55,16 +61,18 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+
 	case tea.WindowSizeMsg:
 		m.textarea.SetWidth(msg.Width - 10)
-		m.textarea.EndOfBufferCharacter = '-'
-		m.textarea.CursorEnd()
+
 	case tea.KeyMsg:
 		switch msg.Type {
+
 		case tea.KeyEsc:
 			if m.textarea.Focused() {
 				m.textarea.Blur()
 			}
+
 		case tea.KeyCtrlC:
 			contents := m.textarea.Value()
 			if contents != "" {
@@ -74,6 +82,7 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			return m, tea.Quit
+
 		default:
 			if !m.textarea.Focused() {
 				cmd = m.textarea.Focus()

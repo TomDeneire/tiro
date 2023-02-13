@@ -25,30 +25,31 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
 		if msg.String() == "n" {
 			if m.list.FilterState() != Filtering {
+				// c := exec.Command("tiro", "tui", "take")
+				// return m, tea.ExecProcess(c, nil)
 				Take(nil)
-				m.Init()
-				Search()
 				return m, tea.Quit
 			}
 		}
 		if msg.String() == "e" {
 			if m.list.FilterState() != Filtering {
 				item := m.list.SelectedItem()
-				searchItem := item.(database.SearchItem)
-				key := strings.Split(searchItem.ItemTitle, " ")[0]
-				noteid, _ := strconv.Atoi(key)
+				noteid, err := itemToNoteid(item)
+				if err != nil {
+					log.Fatalf("Error getting noteid: %v", err)
+				}
 				Take(noteid)
-				m.Init()
-				Search()
 				return m, tea.Quit
 			}
 		}
+
 	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width-10, msg.Height-10)
 	}
@@ -62,14 +63,26 @@ func (m model) View() string {
 	return m.list.View()
 }
 
-func Search() {
+func itemToNoteid(item list.Item) (int, error) {
+	searchItem := item.(database.SearchItem)
+	key := strings.Split(searchItem.ItemTitle, " ")[0]
+	noteid, err := strconv.Atoi(key)
+	if err != nil {
+		return 0, err
+	}
+	return noteid, nil
+}
+
+func initialListModel() (model, error) {
+
+	var m model
 
 	items, err := database.GetSearchList(NotesFile)
 	if err != nil {
-		log.Fatalf("tui error: %v", err)
+		return m, err
 	}
 
-	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
+	m = model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
 
 	m.list.Title = "Browse your notes"
 
@@ -89,9 +102,21 @@ func Search() {
 	m.list.AdditionalShortHelpKeys = fn
 	m.list.AdditionalFullHelpKeys = fn
 
+	return m, nil
+}
+
+func Search() {
+
+	m, err := initialListModel()
+	if err != nil {
+		log.Fatalf("Error making list model: %v", err)
+	}
+
 	p := tea.NewProgram(m)
 
-	if _, err := p.Run(); err != nil {
+	_, err = p.Run()
+
+	if err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
