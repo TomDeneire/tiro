@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"tomdeneire.github.io/tiro/lib/database"
 )
 
@@ -80,7 +81,21 @@ func initialListModel() (model, error) {
 		return m, err
 	}
 
-	m = model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
+	delegate := list.NewDefaultDelegate()
+	delegate.Styles.SelectedTitle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#99c794"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#99c794"}).
+		Padding(0, 0, 0, 1)
+	delegate.Styles.SelectedDesc = delegate.Styles.SelectedTitle.Copy().
+		Foreground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#d4d4d4"})
+
+	m = model{list: list.New(items, delegate, 0, 0)}
+	m.list.Styles.Title = lipgloss.NewStyle().
+		Background(lipgloss.Color("#99c794")).
+		Foreground(lipgloss.Color("230")).
+		Padding(0, 1)
+	m.list.Styles.FilterPrompt.Foreground(lipgloss.Color("#d4d4d4"))
 
 	m.list.Title = "Browse your notes"
 
