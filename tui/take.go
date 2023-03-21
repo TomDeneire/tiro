@@ -6,8 +6,19 @@ import (
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"tomdeneire.github.io/tiro/lib/database"
 )
+
+type Caption struct {
+	Style   lipgloss.Style
+	Message string
+}
+
+func (c Caption) View() string {
+	var style lipgloss.Style
+	return style.Render(c.Style.Render(fmt.Sprintf(c.Message)))
+}
 
 func Take(noteid any) {
 	m := initialTakeModel(noteid)
@@ -33,7 +44,7 @@ func initialTakeModel(noteid any) takeModel {
 	ti.Placeholder = "..."
 	ti.CharLimit = 0
 	ti.FocusedStyle.CursorLine = ti.BlurredStyle.CursorLine
-	ti.EndOfBufferCharacter = '-'
+	ti.EndOfBufferCharacter = ' '
 	ti.SetWidth(100)
 	ti.CursorEnd()
 	ti.Focus()
@@ -100,8 +111,12 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m takeModel) View() string {
+	var c Caption
+	c.Message = "Start taking your note!"
+	c.Style = DefaultCaptionStyle
 	return fmt.Sprintf(
-		"Start taking your note!\n\n%s\n\n%s",
+		"%s\n\n%s\n\n%s",
+		c.View(),
 		m.textarea.View(),
 		"(ctrl+c to quit)",
 	) + "\n\n"

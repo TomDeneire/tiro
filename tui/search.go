@@ -105,10 +105,7 @@ func initialListModel() (model, error) {
 		Foreground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#d4d4d4"})
 
 	m = model{list: list.New(items, delegate, 0, 0)}
-	m.list.Styles.Title = lipgloss.NewStyle().
-		Background(lipgloss.Color("#99c794")).
-		Foreground(lipgloss.Color("230")).
-		Padding(0, 1)
+	m.list.Styles.Title = DefaultCaptionStyle
 	m.list.Styles.FilterPrompt.Foreground(lipgloss.Color("#d4d4d4"))
 
 	m.list.Title = "Browse your notes"
