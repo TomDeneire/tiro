@@ -47,5 +47,6 @@ func Delete(noteid any, notesFile string) error {
 		fmt.Println(affected)
 		return fmt.Errorf("cannot execute delmeta statement: %v", err)
 	}
+
 	return nil
 }

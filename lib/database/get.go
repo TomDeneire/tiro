@@ -8,6 +8,13 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 )
 
+const searchQuery = `
+select notes.key, notes.note, meta.action, meta.time, max(meta.key),
+(select count() from notes) as total from notes
+join meta on meta.noteid = notes.key
+group by notes.key
+order by notes.key desc`
+
 type SearchItem struct {
 	ItemTitle, ItemDesc string
 }
@@ -65,20 +72,24 @@ func GetSearchList(notesFile string) (searchList []list.Item, err error) {
 	defer db.Close()
 
 	var rows *sql.Rows
-	query := `select notes.key, notes.note, meta.action, meta.time, max(meta.key) from notes
-join meta on meta.noteid = notes.key
-group by notes.key
-order by notes.key desc`
-	rows, err = db.Query(query)
+	rows, err = db.Query(searchQuery)
+	count := 0
+
 	for rows.Next() {
 		var item SearchItem
 		var key string
 		var action string
 		var time string
 		var max int
-		if err := rows.Scan(&key, &item.ItemDesc, &action, &time, &max); err != nil {
+		var total int
+		if err := rows.Scan(&key, &item.ItemDesc, &action, &time, &max, &total); err != nil {
 			return nil, fmt.Errorf("cannot read value: %v", err)
 		}
+		if count == 0 {
+			searchList = make([]list.Item, 0, total)
+		}
+		count++
+
 		time = strings.ReplaceAll(time, "T", ", ")
 		item.ItemTitle = key + " (" + action + " " + time + ")"
 		searchList = append(searchList, item)
