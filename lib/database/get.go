@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 )
@@ -78,6 +79,7 @@ order by notes.key desc`
 		if err := rows.Scan(&key, &item.ItemDesc, &action, &time, &max); err != nil {
 			return nil, fmt.Errorf("cannot read value: %v", err)
 		}
+		time = strings.ReplaceAll(time, "T", ", ")
 		item.ItemTitle = key + " (" + action + " " + time + ")"
 		searchList = append(searchList, item)
 	}
