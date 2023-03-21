@@ -34,6 +34,7 @@ func initialTakeModel(noteid any) takeModel {
 	ti.CharLimit = 0
 	ti.FocusedStyle.CursorLine = ti.BlurredStyle.CursorLine
 	ti.EndOfBufferCharacter = '-'
+	ti.SetWidth(100)
 	ti.CursorEnd()
 	ti.Focus()
 
@@ -61,9 +62,6 @@ func (m takeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-
-	case tea.WindowSizeMsg:
-		m.textarea.SetWidth(msg.Width - 10)
 
 	case tea.KeyMsg:
 		switch msg.Type {

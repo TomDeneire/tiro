@@ -48,6 +48,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return takeModel, nil
 			}
 		}
+		if msg.String() == "d" {
+			if m.list.FilterState() != Filtering {
+				item := m.list.SelectedItem()
+				noteid, err := itemToNoteid(item)
+				if err != nil {
+					log.Fatalf("Error getting noteid: %v", err)
+				}
+				err = database.Delete(noteid, NotesFile)
+				if err != nil {
+					log.Fatalf("Error deleting noteid: %v", err)
+				}
+				return m, tea.Quit
+			}
+		}
 
 	case tea.WindowSizeMsg:
 		m.list.SetSize(msg.Width-10, msg.Height-10)
@@ -107,9 +121,13 @@ func initialListModel() (model, error) {
 		)
 		newkey := key.NewBinding(
 			key.WithKeys("new", "n"),
-			key.WithHelp("e", "new"),
+			key.WithHelp("n", "new"),
 		)
-		keys = append(keys, newkey, editkey)
+		delkey := key.NewBinding(
+			key.WithKeys("delete", "d"),
+			key.WithHelp("d", "delete"),
+		)
+		keys = append(keys, newkey, editkey, delkey)
 		return keys
 	}
 	m.list.AdditionalShortHelpKeys = fn
