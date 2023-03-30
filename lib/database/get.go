@@ -82,7 +82,8 @@ func GetSearchList(notesFile string) (searchList []list.Item, err error) {
 		var time string
 		var max int
 		var total int
-		if err := rows.Scan(&key, &item.ItemDesc, &action, &time, &max, &total); err != nil {
+		err := rows.Scan(&key, &item.ItemDesc, &action, &time, &max, &total)
+		if err != nil {
 			return nil, fmt.Errorf("cannot read value: %v", err)
 		}
 		if count == 0 {
