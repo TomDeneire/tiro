@@ -46,12 +46,12 @@ Usage:
 
 Available Commands:
   about       Information about `tiro`
-  arg         Alternative ways to start iiiftool
+  arg         Alternative ways to start tiro
   command     Command functions
   completion  Generate the autocompletion script for the specified shell
   delete      Delete a note
   help        Help about any command
-  info        note info
+  info        Note info
   read        Read a note
   take        Take a note
   tui         tiro TUI

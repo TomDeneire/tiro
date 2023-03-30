@@ -11,8 +11,8 @@ import (
 
 var infoCmd = &cobra.Command{
 	Use:     "info",
-	Short:   "note info",
-	Long:    `info about a specific note`,
+	Short:   "Note info",
+	Long:    `Info about a specific note`,
 	Args:    cobra.ExactArgs(1),
 	Example: `tiro info 1234`,
 	RunE:    info,
