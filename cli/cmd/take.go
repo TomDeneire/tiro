@@ -18,7 +18,7 @@ Can also be used by piping from stdin`,
 	Args: cobra.RangeArgs(0, 2),
 	Example: `tiro take "hello world"
 tiro take "hello world" 1234
-echo myfile.txt | tiro take`,
+cat myfile.txt | tiro take`,
 	RunE: take,
 }
 
