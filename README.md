@@ -32,7 +32,35 @@ Under the hood, `tiro` is a Go application that exposes both a TUI and a CLI. Bo
 
 The CLI is made with the [Cobra](https://github.com/spf13/cobra) framework:
 
-![cli_screenshot](cli_screenshot.png)
+```
+  _   _
+ | |_(_)_ __ ___
+ | __| | '__/ _ \
+ | |_| | | | (_) |
+  \__|_|_|  \___/
+
+tiro is a CLI application for note taking
+
+Usage:
+  tiro [command]
+
+Available Commands:
+  about       Information about `tiro`
+  arg         Alternative ways to start iiiftool
+  command     Command functions
+  completion  Generate the autocompletion script for the specified shell
+  delete      Delete a note
+  help        Help about any command
+  info        note info
+  read        Read a note
+  take        Take a note
+  tui         tiro TUI
+
+Flags:
+  -h, --help   help for tiro
+
+Use "tiro [command] --help" for more information about a command.
+```
 
 For instance:
 
