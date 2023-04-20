@@ -44,6 +44,7 @@ func initialTakeModel(noteid any) takeModel {
 	ti.Placeholder = "..."
 	ti.CharLimit = 0
 	ti.FocusedStyle.CursorLine = ti.BlurredStyle.CursorLine
+	ti.FocusedStyle.Text = ti.BlurredStyle.Text
 	ti.EndOfBufferCharacter = ' '
 	ti.SetWidth(100)
 	ti.CursorEnd()
